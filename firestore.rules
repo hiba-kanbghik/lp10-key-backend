@@ -1,5 +1,41 @@
-زيد هاد الجزء داخل match /databases/{database}/documents { ... } فـ firestore.rules ديالك
-(جنب القواعد اللي عندك ديال accounts/profiles، ماتبدلش شي حاجة أخرى):
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{db}/documents {
+    match /users/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow create: if request.auth != null && request.auth.uid == uid
+        && (!('gift' in request.resource.data)
+            || request.resource.data.gift.last == request.time);
+      allow update: if request.auth != null && request.auth.uid == uid
+        && (!('gift' in request.resource.data)
+            || ('gift' in resource.data && request.resource.data.gift == resource.data.gift)
+            || (request.resource.data.gift.last == request.time
+                && (!('gift' in resource.data)
+                    || request.time > resource.data.gift.last + duration.value(20, 'h'))));
+    }
+    match /announcements/{id} {
+      allow read: if true;
+      allow write: if false;
+    }
+    match /usernames/{n} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.auth.token.email_verified == true
+        && request.resource.data.uid == request.auth.uid
+        && n.matches('^[a-z0-9_]{3,20}$');
+      allow delete: if request.auth != null && resource.data.uid == request.auth.uid;
+    }
+    match /profiles/{uid} {
+      allow read: if true;
+      allow create, update: if request.auth != null && request.auth.uid == uid
+        && request.auth.token.email_verified == true
+        && request.resource.data.nameLower.matches('^[a-z0-9_]{3,20}$')
+        && getAfter(/databases/$(db)/documents/usernames/$(request.resource.data.nameLower)).data.uid == uid
+        && request.resource.data.bio.size() <= 120
+        && request.resource.data.name.size() <= 20
+        && (!('pc' in request.resource.data) || request.resource.data.pc.size() < 40000);
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
 
     // key-system template الثابتة — يقراها غير السيرفر (Cloud Functions)
     match /config/{doc} {
@@ -14,3 +50,5 @@
       allow read: if false;
       allow write: if false;
     }
+  }
+}
