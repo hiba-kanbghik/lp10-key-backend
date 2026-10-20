@@ -9,7 +9,7 @@ setGlobalOptions({ region: 'us-central1', maxInstances: 10 });
 
 // TODO: ضع هنا الـ UID ديالك من Firebase Auth (Authentication → Users)
 // هو اللي كيحدد شكون هو "owner" وكيقدر يوافق على submissions.
-const OWNER_UID = 'PUT_YOUR_FIREBASE_AUTH_UID_HERE';
+const OWNER_UID = 'waWTQ15aklY6sYJLAFNMW0919Jj1';
 
 function randomId(len = 12) {
   const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
