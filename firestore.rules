@@ -1,0 +1,16 @@
+زيد هاد الجزء داخل match /databases/{database}/documents { ... } فـ firestore.rules ديالك
+(جنب القواعد اللي عندك ديال accounts/profiles، ماتبدلش شي حاجة أخرى):
+
+    // key-system template الثابتة — يقراها غير السيرفر (Cloud Functions)
+    match /config/{doc} {
+      allow read: if false;
+      allow write: if false;
+    }
+
+    // submissions ديال "Build a key-system file" الأوتوماتيكي
+    // الكل from Cloud Functions (admin SDK) اللي كيتجاوز هاد القواعد —
+    // هادي غادي تمنع أي حد يقرا أو يكتب مباشرة من المتصفح
+    match /submissions/{id} {
+      allow read: if false;
+      allow write: if false;
+    }
